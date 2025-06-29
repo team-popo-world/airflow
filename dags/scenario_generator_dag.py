@@ -1,6 +1,20 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.docker.operators.docker import DockerOperator
+import os
+import logging
+
+# Airflow 버전 호환성을 위한 PythonOperator import
+try:
+    # Airflow 3.0+ 버전용 (표준 프로바이더)
+    from airflow.providers.standard.operators.python import PythonOperator
+except ImportError:
+    try:
+        # Airflow 2.8+ 버전용 (기존 경로)
+        from airflow.operators.python import PythonOperator
+    except ImportError:
+        # Airflow 2.7 이하 버전용
+        from airflow.operators.python_operator import PythonOperator
 
 # 기본 DAG 설정
 default_args = {
@@ -30,15 +44,48 @@ VOLUME_MAP = [
     '/home/ubuntu/scenario_shared/result_json_files:/app/result_json_files'
 ]
 
+
+def clean_json_files():
+    """
+    /opt/airflow/news_json_files와 /opt/airflow/result_json_files
+    내부의 모든 파일 및 빈 디렉토리를 삭제합니다.
+    """
+    dirs_to_clean = [
+        '/opt/airflow/news_json_files',
+        '/opt/airflow/result_json_files'
+    ]
+
+    for dir_path in dirs_to_clean:
+        if os.path.exists(dir_path):
+            # 디렉토리 내 파일 및 빈 하위 디렉토리 삭제
+            for root, dirs, files in os.walk(dir_path):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    try:
+                        os.remove(file_path)
+                        logging.info(f"삭제됨: {file_path}")
+                    except Exception as e:
+                        logging.error(f"파일 삭제 실패: {file_path}, 에러: {e}")
+                # 빈 하위 디렉토리 삭제
+                for dir in dirs:
+                    dir_path_to_remove = os.path.join(root, dir)
+                    if os.path.exists(dir_path_to_remove) and not os.listdir(dir_path_to_remove):
+                        try:
+                            os.rmdir(dir_path_to_remove)
+                            logging.info(f"빈 디렉토리 삭제됨: {dir_path_to_remove}")
+                        except Exception as e:
+                            logging.error(f"디렉토리 삭제 실패: {dir_path_to_remove}, 에러: {e}")
+        else:
+            logging.info(f"디렉토리가 존재하지 않음: {dir_path}")
+
+    logging.info("news/result JSON 파일 정리 완료")
+    print("news/result JSON 파일 정리 완료")
+
 # 1. 결과파일 삭제용 clean task (컨테이너에 clean_files.py 필요)
-clean_task = DockerOperator(
+clean_task = PythonOperator(
     task_id='clean_json_files',
-    image=IMAGE_NAME,
-    command="python clean_files.py",   # 또는 main.py에 clean 기능이 있으면 해당 명령
-    volumes=VOLUME_MAP,
-    auto_remove=True,
+    python_callable=clean_json_files,
     dag=dag,
-    do_xcom_push=False,
 )
 
 # 2. 각 테마별 시나리오 생성 Task
