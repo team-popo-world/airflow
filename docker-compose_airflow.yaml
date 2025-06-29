@@ -27,6 +27,7 @@ services:
       - ./logs:/opt/airflow/logs
       - ./news_json_files:/opt/airflow/news_json_files
       - ./result_json_files:/opt/airflow/result_json_files
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8080:8080"
     command: >
@@ -48,6 +49,7 @@ services:
       - ./logs:/opt/airflow/logs
       - ./news_json_files:/opt/airflow/news_json_files
       - ./result_json_files:/opt/airflow/result_json_files
+      - /var/run/docker.sock:/var/run/docker.sock
     command: airflow scheduler
   
 
