@@ -17,6 +17,7 @@ google-generativeai
 python-dotenv
 scikit-learn
 mlflow>=2.0.0
+docker
 
 langchain-openai
 langchain-google-genai

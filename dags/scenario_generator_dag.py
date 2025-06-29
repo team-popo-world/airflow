@@ -3,6 +3,7 @@ from airflow import DAG
 from airflow.providers.docker.operators.docker import DockerOperator
 import os
 import logging
+from docker.types import Mount
 
 # Airflow 버전 호환성을 위한 PythonOperator import
 try:
@@ -39,9 +40,9 @@ dag = DAG(
 IMAGE_NAME = "hwpar0826/scenario_app:latest"  # ← 실제 이미지명으로 교체
 
 # 호스트 <-> 컨테이너 공유 볼륨
-VOLUME_MAP = [
-    '/opt/airflow/news_json_files:/app/news_json_files',
-    '/opt/airflow/result_json_files:/app/result_json_files'
+VOLUME_MOUNTS = [
+    Mount(source='/opt/airflow/news_json_files', target='/app/news_json_files', type='bind'),
+    Mount(source='/opt/airflow/result_json_files', target='/app/result_json_files', type='bind'),
 ]
 
 
@@ -96,7 +97,7 @@ for theme in themes:
         task_id=f'generate_{theme}_scenarios',
         image=IMAGE_NAME,
         command=f"--theme {theme} --n 1",
-        docker_kwargs={"volumes": VOLUME_MAP},
+        mounts=VOLUME_MOUNTS, 
         auto_remove=True,
         dag=dag,
         do_xcom_push=False,
@@ -108,7 +109,7 @@ send_task = DockerOperator(
     task_id='send_scenarios',
     image=IMAGE_NAME,
     command="python send_data.py",
-    volumes=VOLUME_MAP,
+    mounts=VOLUME_MOUNTS, 
     auto_remove=True,
     dag=dag,
     do_xcom_push=False,
