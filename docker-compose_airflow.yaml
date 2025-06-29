@@ -23,6 +23,8 @@ services:
       - PYTHONPATH=/opt/airflow
       - AIRFLOW__DOCKER__DOCKER_URL=unix:///var/run/docker.sock
     user: "${AIRFLOW_UID:-50000}"
+    group_add:
+      - 988
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
@@ -46,6 +48,8 @@ services:
       - PYTHONPATH=/opt/airflow
       - AIRFLOW__DOCKER__DOCKER_URL=unix:///var/run/docker.sock
     user: "${AIRFLOW_UID:-50000}" 
+    group_add:
+      - 988
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
