@@ -101,6 +101,7 @@ for theme in themes:
         auto_remove=True,
         dag=dag,
         do_xcom_push=False,
+        docker_url="unix://var/run/docker.sock",
     )
     generation_tasks.append(task)
 
@@ -113,6 +114,7 @@ send_task = DockerOperator(
     auto_remove=True,
     dag=dag,
     do_xcom_push=False,
+    docker_url="unix://var/run/docker.sock",
 )
 
 # 4. Task 의존성
