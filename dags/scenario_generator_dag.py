@@ -96,7 +96,7 @@ for theme in themes:
         task_id=f'generate_{theme}_scenarios',
         image=IMAGE_NAME,
         command=f"--theme {theme} --n 1",
-        volumes=VOLUME_MAP,
+        docker_kwargs={"volumes": VOLUME_MAP},
         auto_remove=True,
         dag=dag,
         do_xcom_push=False,
