@@ -40,8 +40,8 @@ IMAGE_NAME = "hwpar0826/scenario_app:latest"  # ← 실제 이미지명으로 �
 
 # 호스트 <-> 컨테이너 공유 볼륨
 VOLUME_MAP = [
-    '/home/ubuntu/scenario_shared/news_json_files:/app/news_json_files',
-    '/home/ubuntu/scenario_shared/result_json_files:/app/result_json_files'
+    '/opt/airflow/news_json_files:/app/news_json_files',
+    '/opt/airflow/result_json_files:/app/result_json_files'
 ]
 
 
