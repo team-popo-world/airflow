@@ -1,0 +1,24 @@
+# Airflow core
+apache-airflow
+apache-airflow-providers-docker
+
+# Airflow 3.0+ 표준 프로바이더 (PythonOperator 등)
+apache-airflow-providers-standard
+apache-airflow-providers-openlineage>=1.8.0
+
+# DAG에서 사용하는 의존성
+pymongo
+sqlalchemy
+psycopg2-binary
+pandas
+numpy
+requests
+google-generativeai
+python-dotenv
+scikit-learn
+mlflow>=2.0.0
+
+langchain-openai
+langchain-google-genai
+langchain
+

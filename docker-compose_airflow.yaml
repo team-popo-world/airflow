@@ -1,0 +1,55 @@
+services:
+  # Airflow 전용 PostgreSQL
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  airflow-webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      - AIRFLOW__WEBSERVER__WEB_SERVER_HOST=0.0.0.0
+      - PYTHONPATH=/opt/airflow
+    user: "${AIRFLOW_UID:-50000}"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./news_json_files:/opt/airflow/news_json_files
+      - ./result_json_files:/opt/airflow/result_json_files
+    ports:
+      - "8080:8080"
+    command: >
+      bash -c "sleep 10 && airflow db upgrade && airflow users create --username $${AIRFLOW__WEBSERVER__DEFAULT_USER:-admin} --firstname Admin --lastname User --role Admin --email admin@example.com --password $${AIRFLOW__WEBSERVER__DEFAULT_PASSWORD:-admin} && exec airflow webserver"
+
+  airflow-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    depends_on:
+      - postgres
+    env_file:
+      - .env  
+    environment:
+      - PYTHONPATH=/opt/airflow
+    user: "${AIRFLOW_UID:-50000}" 
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./news_json_files:/opt/airflow/news_json_files
+      - ./result_json_files:/opt/airflow/result_json_files
+    command: airflow scheduler
+  
+
+volumes:
+  pg_data:

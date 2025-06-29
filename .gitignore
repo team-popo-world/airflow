@@ -1,0 +1,23 @@
+.env
+
+# logs 폴더 전체 무시
+logs/*
+
+# 단, .gitkeep 파일은 포함 (구조 유지)
+!logs/.gitkeep
+
+# Python 캐시 파일
+**/__pycache__/
+*.pyc
+*.py[cod]
+*$py.class
+*.so
+.pem
+
+# mlflow 로컬 데이터
+**/mlruns/
+**/mlartifacts/
+mlflow.db
+
+# invest_history_dummy 데이터 제거
+invest/data/investment_game_dummy_data.json
