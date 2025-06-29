@@ -21,6 +21,7 @@ services:
     environment:
       - AIRFLOW__WEBSERVER__WEB_SERVER_HOST=0.0.0.0
       - PYTHONPATH=/opt/airflow
+      - AIRFLOW__DOCKER__DOCKER_URL=unix:///var/run/docker.sock
     user: "${AIRFLOW_UID:-50000}"
     volumes:
       - ./dags:/opt/airflow/dags
@@ -43,6 +44,7 @@ services:
       - .env  
     environment:
       - PYTHONPATH=/opt/airflow
+      - AIRFLOW__DOCKER__DOCKER_URL=unix:///var/run/docker.sock
     user: "${AIRFLOW_UID:-50000}" 
     volumes:
       - ./dags:/opt/airflow/dags
